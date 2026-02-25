@@ -222,7 +222,72 @@ body {
   border-radius: var(--shape-large); width: 100%;
   display: flex; justify-content: space-between; align-items: center;
   animation: cardIn var(--spring); position: relative; overflow: hidden;
+  cursor: pointer; transition: all var(--dur-quick) var(--ease-standard);
 }
+.score-banner:active { transform: scale(0.98); }
+
+/* FULL SCORECARD OVERLAY */
+.scorecard-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); z-index: 1000;
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.scorecard-sheet {
+  background: var(--surface); border-radius: 20px 20px 0 0;
+  width: 100%; max-height: 85vh; overflow-y: auto;
+  animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+.scorecard-handle {
+  width: 36px; height: 4px; background: var(--grey-40);
+  border-radius: 2px; margin: 10px auto 0;
+}
+.scorecard-header {
+  padding: 16px 20px 12px; display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--stroke-subtle);
+}
+.scorecard-header-title { font-size: 18px; font-weight: 800; color: var(--text-high); letter-spacing: -0.02em; }
+.scorecard-close {
+  width: 32px; height: 32px; border-radius: 50%; border: none;
+  background: var(--grey-20); display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+.scorecard-close svg { width: 16px; height: 16px; fill: var(--text-medium); }
+.scorecard-match-bar {
+  padding: 14px 20px; background: var(--primary-70); color: #fff;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.scorecard-team-score { font-size: 20px; font-weight: 800; }
+.scorecard-team-overs { font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 2px; }
+.scorecard-vs { font-size: 11px; color: rgba(255,255,255,0.5); font-weight: 600; }
+.scorecard-need {
+  padding: 10px 20px; background: var(--sparkle-20);
+  font-size: 13px; font-weight: 700; color: var(--sparkle-70); text-align: center;
+}
+.scorecard-section { padding: 14px 20px; }
+.scorecard-section-title {
+  font-size: 13px; font-weight: 800; color: var(--text-medium); text-transform: uppercase;
+  letter-spacing: 0.05em; margin-bottom: 10px;
+}
+.scorecard-table { width: 100%; border-collapse: collapse; }
+.scorecard-table th {
+  font-size: 11px; font-weight: 700; color: var(--text-low); text-align: left;
+  padding: 6px 0; border-bottom: 1px solid var(--stroke-subtle);
+}
+.scorecard-table th:not(:first-child) { text-align: center; }
+.scorecard-table td {
+  font-size: 13px; color: var(--text-high); padding: 8px 0;
+  border-bottom: 1px solid var(--stroke-minimal);
+}
+.scorecard-table td:not(:first-child) { text-align: center; font-variant-numeric: tabular-nums; }
+.scorecard-table td:first-child { font-weight: 600; }
+.scorecard-batter-name { display: flex; align-items: center; gap: 4px; }
+.scorecard-batting-now { color: var(--sparkle-60); font-size: 10px; }
+.scorecard-extras { padding: 8px 20px; font-size: 12px; color: var(--text-low); }
+.scorecard-bowling-title { margin-top: 4px; }
 .score-left .score-team { font-size: 18px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 6px; letter-spacing: -0.02em; }
 .score-left .score-team .score-overs-inline { font-size: 12px; font-weight: 400; color: rgba(255,255,255,0.5); }
 .score-left .score-overs { font-size: 12px; color: rgba(255,255,255,0.55); margin-top: 3px; font-weight: 400; }
@@ -797,7 +862,7 @@ function sendUserMsg() {
 
 /* ─── SCORE BANNER ─── */
 function renderScoreBanner() {
-  addWidget(`<div class="score-banner"><div class="score-left"><div class="score-team">RCB 92/2 <span style="font-size:11px;color:rgba(255,255,255,0.5)">(10.3 ov)</span></div><div class="score-overs">vs MI &middot; Wankhede Stadium</div><div class="score-need">Need 87 off 59 &middot; Kohli* 47(31)</div></div><div class="score-right"><div class="live-badge"><span class="live-dot"></span> LIVE</div><div class="score-match-info">IPL 2026 &middot; Match 23</div></div></div>`);
+  addWidget(`<div class="score-banner" onclick="openScorecard()"><div class="score-left"><div class="score-team">RCB 92/2 <span style="font-size:11px;color:rgba(255,255,255,0.5)">(10.3 ov)</span></div><div class="score-overs">vs MI &middot; Wankhede Stadium</div><div class="score-need">Need 87 off 59 &middot; Kohli* 47(31)</div></div><div class="score-right"><div class="live-badge"><span class="live-dot"></span> LIVE</div><div class="score-match-info">IPL 2026 &middot; Match 23</div></div></div>`);
   setTimeout(() => {
     addWidget(`<div class="points-bar"><div class="points-left"><div class="points-icon">${IC.trophy}</div><span class="points-val">${predictionPoints} pts</span><span class="points-rank">#1 in your group</span></div><div class="points-streak">${IC.fire} 7 streak</div></div>`);
     setTimeout(renderViewTabs, 200);
@@ -1028,6 +1093,82 @@ function renderLeaderboardView() {
 }
 
 /* ─── START ─── */
+/* ─── FULL SCORECARD ─── */
+function openScorecard() {
+  const overlay = document.createElement('div');
+  overlay.className = 'scorecard-overlay';
+  overlay.id = 'scorecardOverlay';
+  overlay.onclick = function(e) { if (e.target === overlay) closeScorecard(); };
+  overlay.innerHTML = `<div class="scorecard-sheet">
+    <div class="scorecard-handle"></div>
+    <div class="scorecard-header">
+      <div class="scorecard-header-title">Live Scorecard</div>
+      <button class="scorecard-close" onclick="closeScorecard()"><svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg></button>
+    </div>
+
+    <div class="scorecard-match-bar">
+      <div>
+        <div class="scorecard-team-score">RCB 92/2</div>
+        <div class="scorecard-team-overs">10.3 overs</div>
+      </div>
+      <div class="scorecard-vs">vs</div>
+      <div style="text-align:right">
+        <div class="scorecard-team-score">MI 178/6</div>
+        <div class="scorecard-team-overs">20 overs</div>
+      </div>
+    </div>
+
+    <div class="scorecard-need">RCB need 87 runs from 59 balls &middot; RRR: 8.85</div>
+
+    <div class="scorecard-section">
+      <div class="scorecard-section-title">Batting — RCB</div>
+      <table class="scorecard-table">
+        <thead><tr><th>Batter</th><th>R</th><th>B</th><th>4s</th><th>6s</th><th>SR</th></tr></thead>
+        <tbody>
+          <tr><td><div class="scorecard-batter-name">V Kohli <span class="scorecard-batting-now">●</span></div></td><td><strong>47</strong></td><td>31</td><td>4</td><td>3</td><td>151.6</td></tr>
+          <tr><td><div class="scorecard-batter-name">R Patidar <span class="scorecard-batting-now">●</span></div></td><td><strong>18</strong></td><td>14</td><td>2</td><td>0</td><td>128.6</td></tr>
+          <tr style="color:var(--text-low)"><td>F du Plessis</td><td>19</td><td>16</td><td>3</td><td>0</td><td>118.8</td></tr>
+          <tr style="color:var(--text-low)"><td>D Padikkal</td><td>5</td><td>8</td><td>0</td><td>0</td><td>62.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="scorecard-extras">Extras: 3 (1w, 2nb) &middot; Partnership: 52 off 34</div>
+
+    <div class="scorecard-section scorecard-bowling-title">
+      <div class="scorecard-section-title">Bowling — MI</div>
+      <table class="scorecard-table">
+        <thead><tr><th>Bowler</th><th>O</th><th>M</th><th>R</th><th>W</th><th>ER</th></tr></thead>
+        <tbody>
+          <tr><td><div class="scorecard-batter-name">J Bumrah <span class="scorecard-batting-now">●</span></div></td><td>3.3</td><td>0</td><td>22</td><td><strong>2</strong></td><td>6.29</td></tr>
+          <tr><td>T Boult</td><td>3</td><td>0</td><td>28</td><td>0</td><td>9.33</td></tr>
+          <tr><td>H Pandya</td><td>2</td><td>0</td><td>19</td><td>0</td><td>9.50</td></tr>
+          <tr><td>P Krishna</td><td>2</td><td>0</td><td>23</td><td>0</td><td>11.50</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="scorecard-section" style="padding-bottom:20px">
+      <div class="scorecard-section-title">Recent Overs</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <div style="padding:6px 10px;border-radius:8px;background:var(--grey-10);font-size:12px;font-weight:600;color:var(--text-medium)">10: 1 4 0 <span style="color:var(--error)">W</span> 2 1</div>
+        <div style="padding:6px 10px;border-radius:8px;background:var(--grey-10);font-size:12px;font-weight:600;color:var(--text-medium)">9: 0 1 <span style="color:var(--sparkle-60)">6</span> 4 1 2</div>
+        <div style="padding:6px 10px;border-radius:8px;background:var(--grey-10);font-size:12px;font-weight:600;color:var(--text-medium)">8: 4 0 1 1 <span style="color:var(--sparkle-60)">6</span> 2</div>
+      </div>
+    </div>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+
+function closeScorecard() {
+  const overlay = document.getElementById('scorecardOverlay');
+  if (overlay) {
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.2s ease';
+    setTimeout(() => overlay.remove(), 200);
+  }
+}
+
 function startJourney() {
   setTimeout(() => {
     addMsg('ai', 'Welcome to Match Companion!<br><br>MI vs RCB is <strong>LIVE</strong> at Wankhede. I\'ll be your personal cricket companion — predictions, key moments, and leaderboard, all right here.');
