@@ -96,7 +96,7 @@ body {
 }
 
 /* STATUS BAR */
-.status-bar {
+.status-bar { display: none !important;
   height: 52px; padding: 14px 24px 0;
   display: flex; justify-content: space-between; align-items: center;
   flex-shrink: 0; background: var(--surface);
@@ -610,6 +610,7 @@ body {
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(16px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 @keyframes toastOut { from { opacity: 1; } to { opacity: 0; } }
+.chip-row.interacted .chip:not(.picked), .persona-card.interacted:not(.picked), .podcast-card.interacted:not(.picked), .scene-card.interacted:not(.picked) { opacity: 0.4; pointer-events: none; transform: none !important; } .chip.picked, .persona-card.picked, .podcast-card.picked, .scene-card.picked { border-color: var(--primary-50); background: var(--primary-20); }
 </style>
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -795,7 +796,7 @@ function botIconHTML() {
 
 function addMsg(type, html) {
   const row = document.createElement('div');
-  row.className = 'msg-row ' + (type === 'user' ? 'user' : 'ai');
+  row.className = 'msg-row ' + (type === 'user' ? 'user' : 'ai') + (_viewRendering ? ' view-content-section' : '');
   if (type === 'ai') {
     row.innerHTML = `<div class="ai-msg-wrap">${botIconHTML()}<div class="msg-bubble">${html}</div></div>`;
   } else {
@@ -805,9 +806,10 @@ function addMsg(type, html) {
   scrollBottom();
 }
 
-function addWidget(html) {
+let _viewRendering = false;
+function addWidget(html, extraClass) {
   const row = document.createElement('div');
-  row.className = 'msg-row ai';
+  row.className = 'msg-row ai' + (extraClass ? ' ' + extraClass : '') + (_viewRendering ? ' view-content-section' : '');
   row.innerHTML = html;
   chat.appendChild(row);
   scrollBottom();
@@ -881,7 +883,21 @@ function renderViewTabs() {
   addWidget(`<div class="view-tabs-wrap"><div class="view-tabs"><button class="view-tab${currentView==='moments'?' active':''}" onclick="showView('moments')">${IC.bolt} Key Moments</button><button class="view-tab${currentView==='predict'?' active':''}" onclick="showView('predict')">${IC.target} Predict</button><button class="view-tab${currentView==='board'?' active':''}" onclick="showView('board')">${IC.trophy} Leaderboard</button></div></div>`);
 }
 
-function showView(v) { currentView = v; if (v==='moments') renderMomentsView(); else if (v==='predict') renderPredictView(); else if (v==='board') renderLeaderboardView(); }
+function showView(v) {
+  currentView = v;
+  // Collapse previous view content before rendering new view
+  document.querySelectorAll('.view-content-section').forEach(el => el.remove());
+  // Re-render view tabs to update active state  
+  const existingTabs = document.querySelector('.view-tabs-wrap');
+  if (existingTabs) existingTabs.closest('.msg-row').remove();
+  _viewRendering = true;
+  renderViewTabs();
+  if (v==='moments') renderMomentsView();
+  else if (v==='predict') renderPredictView();
+  else if (v==='board') renderLeaderboardView();
+  // Reset flag after a delay to catch setTimeout-based renders
+  setTimeout(() => { _viewRendering = false; }, 2000);
+}
 
 /* ─── MOMENTS — swipeable cards ─── */
 function renderMomentsView() {
@@ -1183,6 +1199,46 @@ function startJourney() {
   }, 400);
 }
 startJourney();
+
+/* ═══ COLLAPSE PREVIOUS INTERACTIVE SECTIONS ═══ */
+document.addEventListener("click", function(e) {
+  // Handle chip clicks
+  const chip = e.target.closest(".chip");
+  if (chip) {
+    const row = chip.closest(".chip-row");
+    if (row && !row.classList.contains("interacted")) {
+      row.classList.add("interacted");
+      chip.classList.add("picked");
+    }
+  }
+  // Handle persona card clicks
+  const persona = e.target.closest(".persona-card");
+  if (persona) {
+    const container = persona.parentElement;
+    if (container) {
+      container.querySelectorAll(".persona-card").forEach(c => c.classList.add("interacted"));
+      persona.classList.add("picked");
+    }
+  }
+  // Handle podcast card clicks  
+  const podcast = e.target.closest(".podcast-card");
+  if (podcast) {
+    const container = podcast.parentElement;
+    if (container) {
+      container.querySelectorAll(".podcast-card").forEach(c => c.classList.add("interacted"));
+      podcast.classList.add("picked");
+    }
+  }
+  // Handle scene card clicks
+  const scene = e.target.closest(".scene-card");
+  if (scene) {
+    const container = scene.parentElement;
+    if (container) {
+      container.querySelectorAll(".scene-card").forEach(c => c.classList.add("interacted"));
+      scene.classList.add("picked");
+    }
+  }
+});
 </script>
 </body>
 </html>
