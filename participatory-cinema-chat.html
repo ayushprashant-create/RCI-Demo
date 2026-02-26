@@ -103,7 +103,7 @@ body {
 }
 
 /* Status Bar */
-.status-bar {
+.status-bar { display: none !important;
   height: 52px;
   padding: 14px 24px 0;
   display: flex;
@@ -1193,6 +1193,7 @@ body {
 }
 .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
 .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+.chip-row.interacted .chip:not(.picked), .persona-card.interacted:not(.picked), .podcast-card.interacted:not(.picked), .scene-card.interacted:not(.picked) { opacity: 0.4; pointer-events: none; transform: none !important; } .chip.picked, .persona-card.picked, .podcast-card.picked, .scene-card.picked { border-color: var(--primary-50); background: var(--primary-20); }
 </style>
 <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
@@ -2021,6 +2022,46 @@ function handleInputKey(e) {
 
 document.addEventListener('DOMContentLoaded', () => {
   showWelcome();
+});
+
+/* ═══ COLLAPSE PREVIOUS INTERACTIVE SECTIONS ═══ */
+document.addEventListener("click", function(e) {
+  // Handle chip clicks
+  const chip = e.target.closest(".chip");
+  if (chip) {
+    const row = chip.closest(".chip-row");
+    if (row && !row.classList.contains("interacted")) {
+      row.classList.add("interacted");
+      chip.classList.add("picked");
+    }
+  }
+  // Handle persona card clicks
+  const persona = e.target.closest(".persona-card");
+  if (persona) {
+    const container = persona.parentElement;
+    if (container) {
+      container.querySelectorAll(".persona-card").forEach(c => c.classList.add("interacted"));
+      persona.classList.add("picked");
+    }
+  }
+  // Handle podcast card clicks  
+  const podcast = e.target.closest(".podcast-card");
+  if (podcast) {
+    const container = podcast.parentElement;
+    if (container) {
+      container.querySelectorAll(".podcast-card").forEach(c => c.classList.add("interacted"));
+      podcast.classList.add("picked");
+    }
+  }
+  // Handle scene card clicks
+  const scene = e.target.closest(".scene-card");
+  if (scene) {
+    const container = scene.parentElement;
+    if (container) {
+      container.querySelectorAll(".scene-card").forEach(c => c.classList.add("interacted"));
+      scene.classList.add("picked");
+    }
+  }
 });
 </script>
 
