@@ -974,20 +974,7 @@ body {
   <!-- Chat Container -->
   <div class="chat-container" id="chatContainer"></div>
 
-  <!-- Bottom Widget (Working Input) -->
-  <div class="bottom-widget">
-    <div class="bw-container">
-      <div class="bw-input"><input type="text" class="bw-real-input" id="chatInput" placeholder="Ask anything" onkeydown="if(event.key==='Enter')sendChatMsg()" oninput="toggleSendBtn()"></div>
-      <div class="bw-actions">
-        <div class="bw-left">
-          <button class="wib"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg></button>
-          <button class="wib"><svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/></svg></button>
-        </div>
-        <button class="bw-send hidden-send" id="sendBtn" onclick="sendChatMsg()"><svg viewBox="0 0 24 24"><path d="M3.4 20.4l17.45-7.48a1 1 0 000-1.84L3.4 3.6a.993.993 0 00-1.39.91L2 9.12c0 .5.37.93.87.99L17 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z"/></svg></button>
-        <button class="speak-btn" id="speakBtn"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg><span>Speak</span></button>
-      </div>
-    </div>
-  </div>
+  <!-- Bottom Widget removed -->
 </div>
 
 <script>
@@ -1166,7 +1153,7 @@ function showWelcome() {
   clearChat();
 
   addMsg(`<div class="ai-msg">${avatarHTML()}<div class="ai-content">
-    <div class="ai-text"><p>Hello, Shantanu! I\u2019m your audio companion. What would you like to explore today?</p></div>
+    <div class="ai-text"><p>Hello, Shantanu! I\u2019m your audio companion. Here are a few ways in which I can help</p></div>
     <div class="chip-row mt-8">
       <button class="chip" onclick="showRJSelect()">
         ${IC.mic}<span>AI Personal RJ</span>
